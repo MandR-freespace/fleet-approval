@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- FORCE UPDATE: 2025-11-14 2:15 PM -->
-  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fleet Approval</title>
   <style>
     body {
@@ -79,9 +77,9 @@
   <div class="container">
     <h1>Finance Approval</h1>
     
-    <!-- TOKEN IS HIDDEN FROM USER -->
     <div class="info">
-      <p><strong>Vehicle:</strong> <span id="vehicle">Loading...</span></p>
+      <p><strong>Token:</strong> <span id="token">Loading...</span></p>
+      <p><strong>Vehicle:</strong> <span id="vehicle">Ford F-150 XLT</span></p>
     </div>
 
     <div class="buttons">
@@ -93,60 +91,57 @@
 
     <div class="result" id="result"></div>
   </div>
-<script>
-  // === YOUR APPS SCRIPT WEB APP URL ===
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
 
-  // Get token from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('t');
+  <script>
+    // Get token from URL (?t=abc123)
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('t');
+    
+    // Show token
+    document.getElementById('token').textContent = token || 'Not found';
+    
+    // Submit decision
+    function submitDecision(decision) {
+      const comment = document.getElementById('comment').value.trim();
+      const resultEl = document.getElementById('result');
 
-  // DEBUG: Show full URL
-  console.log("Full URL:", window.location.href);
-  console.log("Token found:", token);
+      if (!token) {
+        resultEl.textContent = "Error: No token found";
+        resultEl.style.color = "#d93025";
+        return;
+      }
 
-  // Update UI
-  document.getElementById('token').textContent = token || "Not found";
-  document.getElementById('vehicle').textContent = "Ford F-150 XLT"; // Replace later
+      resultEl.textContent = "Submitting...";
+      resultEl.style.color = "#1a73e8";
 
-  function submitDecision(decision) {
-    const comment = document.getElementById('comment').value.trim();
-    const resultEl = document.getElementById('result');
+      // Send to Apps Script
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
 
-    if (!token) {
-      resultEl.textContent = "Error: No token found";
-      resultEl.style.color = "#d93025";
-      return;
+      const payload = {
+        role: 'finance',
+        token: token,
+        decision: decision,
+        comment: comment
+      };
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        resultEl.style.color = decision === 'approve' ? '#34a853' : '#d93025';
+        resultEl.textContent = `Decision: ${decision.toUpperCase()}!`;
+        setTimeout(() => window.close(), 2000);
+      })
+      .catch(err => {
+        resultEl.style.color = "#d93025";
+        resultEl.textContent = "Error: " + err.message;
+      });
     }
-
-    resultEl.textContent = "Submitting...";
-    resultEl.style.color = "#1a73e8";
-
-    const payload = {
-      role: 'finance',
-      token: token,
-      decision: decision,
-      comment: comment
-    };
-
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-    .then(() => {
-      resultEl.style.color = decision === 'approve' ? '#34a853' : '#d93025';
-      resultEl.textContent = `Decision: ${decision.toUpperCase()}!`;
-      setTimeout(() => window.close(), 2000);
-    })
-    .catch(err => {
-      resultEl.style.color = "#d93025";
-      resultEl.textContent = "Error: " + err.message;
-    });
-  }
-</script>
+  </script>
 </body>
 </html>
