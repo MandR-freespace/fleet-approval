@@ -98,7 +98,7 @@
 
     // Get token from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+    const token = urlParams.get('t');  // ← now reads 't' instead of 'token'
     document.getElementById('token').textContent = token || "Not found";
 
     function submitDecision(decision) {
