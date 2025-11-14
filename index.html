@@ -91,57 +91,60 @@
 
     <div class="result" id="result"></div>
   </div>
+<script>
+  // === YOUR APPS SCRIPT WEB APP URL ===
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
 
-  <script>
-    // === YOUR APPS SCRIPT WEB APP URL ===
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
+  // Get token from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('t');
 
-    // Get token from URL (hidden parameter: ?t=...)
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('t');
+  // DEBUG: Show full URL
+  console.log("Full URL:", window.location.href);
+  console.log("Token found:", token);
 
-    // Optional: Show vehicle name (you can fetch from Sheet later)
-    // For now, show placeholder — or pull from Sheet via Apps Script
-    document.getElementById('vehicle').textContent = "Ford F-150 XLT"; // ← Replace with real data later
+  // Update UI
+  document.getElementById('token').textContent = token || "Not found";
+  document.getElementById('vehicle').textContent = "Ford F-150 XLT"; // Replace later
 
-    function submitDecision(decision) {
-      const comment = document.getElementById('comment').value.trim();
-      const resultEl = document.getElementById('result');
+  function submitDecision(decision) {
+    const comment = document.getElementById('comment').value.trim();
+    const resultEl = document.getElementById('result');
 
-      if (!token) {
-        resultEl.textContent = "Error: No token found";
-        resultEl.style.color = "#d93025";
-        return;
-      }
-
-      resultEl.textContent = "Submitting...";
-      resultEl.style.color = "#1a73e8";
-
-      const payload = {
-        role: 'finance',
-        token: token,
-        decision: decision,
-        comment: comment
-      };
-
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(() => {
-        resultEl.style.color = decision === 'approve' ? '#34a853' : '#d93025';
-        resultEl.textContent = `Decision: ${decision.toUpperCase()}!`;
-        setTimeout(() => window.close(), 2000);
-      })
-      .catch(err => {
-        resultEl.style.color = "#d93025";
-        resultEl.textContent = "Error: " + err.message;
-      });
+    if (!token) {
+      resultEl.textContent = "Error: No token found";
+      resultEl.style.color = "#d93025";
+      return;
     }
-  </script>
+
+    resultEl.textContent = "Submitting...";
+    resultEl.style.color = "#1a73e8";
+
+    const payload = {
+      role: 'finance',
+      token: token,
+      decision: decision,
+      comment: comment
+    };
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      resultEl.style.color = decision === 'approve' ? '#34a853' : '#d93025';
+      resultEl.textContent = `Decision: ${decision.toUpperCase()}!`;
+      setTimeout(() => window.close(), 2000);
+    })
+    .catch(err => {
+      resultEl.style.color = "#d93025";
+      resultEl.textContent = "Error: " + err.message;
+    });
+  }
+</script>
 </body>
 </html>
