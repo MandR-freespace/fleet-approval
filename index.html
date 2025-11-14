@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fleet Approval</title>
   <style>
     body {
@@ -71,6 +71,11 @@
       font-weight: bold;
       color: #1a73e8;
     }
+    .debug {
+      color: red;
+      font-size: 12px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -90,17 +95,29 @@
     <textarea id="comment" placeholder="Add a comment (optional)..."></textarea>
 
     <div class="result" id="result"></div>
+    <div class="debug" id="debug"></div>
   </div>
 
   <script>
+    // === YOUR APPS SCRIPT WEB APP URL ===
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
+
     // Get token from URL (?t=abc123)
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('t');
     
+    // DEBUG: Log to console
+    console.log("Full URL:", window.location.href);
+    console.log("Token param:", token);
+
     // Show token
-    document.getElementById('token').textContent = token || 'Not found';
+    const tokenEl = document.getElementById('token');
+    tokenEl.textContent = token || 'Not found';
     
-    // Submit decision
+    if (!token) {
+      document.getElementById('debug').textContent = "Debug: Check console (F12) for URL/token info";
+    }
+
     function submitDecision(decision) {
       const comment = document.getElementById('comment').value.trim();
       const resultEl = document.getElementById('result');
@@ -114,15 +131,14 @@
       resultEl.textContent = "Submitting...";
       resultEl.style.color = "#1a73e8";
 
-      // Send to Apps Script
-      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
-
       const payload = {
         role: 'finance',
         token: token,
         decision: decision,
         comment: comment
       };
+
+      console.log("Sending payload:", payload); // DEBUG
 
       fetch(SCRIPT_URL, {
         method: 'POST',
@@ -140,6 +156,7 @@
       .catch(err => {
         resultEl.style.color = "#d93025";
         resultEl.textContent = "Error: " + err.message;
+        console.error("Fetch error:", err); // DEBUG
       });
     }
   </script>
