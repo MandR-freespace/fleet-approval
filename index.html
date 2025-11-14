@@ -77,8 +77,8 @@
   <div class="container">
     <h1>Finance Approval</h1>
     
+    <!-- TOKEN IS HIDDEN FROM USER -->
     <div class="info">
-      <p><strong>Token:</strong> <span id="token">Loading...</span></p>
       <p><strong>Vehicle:</strong> <span id="vehicle">Loading...</span></p>
     </div>
 
@@ -96,10 +96,13 @@
     // === YOUR APPS SCRIPT WEB APP URL ===
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4SxGgEwQQXAsWs8hz1B8BzuQN_Bjezq-YiSkIdbk/exec";
 
-    // Get token from URL
+    // Get token from URL (hidden parameter: ?t=...)
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('t');  // ← now reads 't' instead of 'token'
-    document.getElementById('token').textContent = token || "Not found";
+    const token = urlParams.get('t');
+
+    // Optional: Show vehicle name (you can fetch from Sheet later)
+    // For now, show placeholder — or pull from Sheet via Apps Script
+    document.getElementById('vehicle').textContent = "Ford F-150 XLT"; // ← Replace with real data later
 
     function submitDecision(decision) {
       const comment = document.getElementById('comment').value.trim();
